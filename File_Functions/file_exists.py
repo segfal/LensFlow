@@ -20,3 +20,4 @@ def check_folder_exists(date_folder, base_directory):
 # Example usage:
 # exists = check_folder_exists("12.27.2023", "path/to/pictures/directory")
 # print(f"Does the folder exist? {exists}")
+
