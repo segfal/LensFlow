@@ -7,9 +7,16 @@ def read_image_metadata(image_path):
                 "format": img.format,
                 # Extract original datetime if available
                 "datetime_original": img._getexif().get(36867) if img._getexif() else None,
+            
             }
+
             return metadata
 
-''' Example usage:
+
+
+'''
+Example usage:
 image_path = "path/to/your/image.jpg"
-metadata = read_image_metadata(image_path) '''
+metadata = read_image_metadata(image_path) 
+
+'''
