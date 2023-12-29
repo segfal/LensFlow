@@ -1,9 +1,8 @@
 import os, shutil, datetime
 import tkinter as tk
-from tkinter import filedialog, messagebox, font as tkfont
+from tkinter import ttk, filedialog, messagebox, font as tkfont
 from tkinter.ttk import Progressbar
 from PIL import Image, ExifTags
-import sv_ttk
 
 def get_metadata(file_path):
     print() #print is a placeholder for where get_metadata implementation goes
@@ -161,9 +160,6 @@ root = tk.Tk()
 root.title("PySort")
 root.geometry("650x275") # s ize of the window
 root.iconbitmap('/Gui/icon.jpg')
-
-root.tk.call("source", "../Gui/azure.tcl")
-root.tk.call("set_theme", "dark")
 
 main_frame = tk.Frame(root)
 main_frame.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)
