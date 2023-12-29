@@ -16,6 +16,11 @@ def get_usb_drive():
         
 usb_drives = get_usb_drive()
 
+
+
+
+
+
 def some_function():
     # You can use the global variables here
     print(f"Accessing pictures library at {PICTURES_LIBRARY_PATH}")
