@@ -2,3 +2,6 @@ pypics
 sample_pics
 test_output
 .venv
+File_Functions/__pycache__
+output/gui/_internal
+*.pyc
