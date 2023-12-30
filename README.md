@@ -1,5 +1,6 @@
 # LensFlow
-![Logo](readme_img\big_logo.png)
+
+![Photo_management_copy](https://github.com/segfal/LensFlow/assets/66498760/711d8dbe-a527-46f4-8bff-806d924dd2cf)
 
 ## Who This Tool Is For
 Designed for photographers and videographers, LensFlow is the solution to a common post-shoot dilemma: organizing hundreds of thousands of unsorted photos. Gone are the days of manually sorting images into folders by date. LensFlow automates this process, making it effortless to archive and access your photos for editing.
