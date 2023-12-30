@@ -1,6 +1,6 @@
 import os, shutil, datetime
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox, font as tkfont
+from tkinter import filedialog, messagebox, font as tkfont
 from tkinter.ttk import Progressbar
 from PIL import Image, ExifTags
 
