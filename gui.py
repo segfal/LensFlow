@@ -1,14 +1,16 @@
-import os, shutil, datetime
+import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, font as tkfont
 from tkinter.ttk import Progressbar
-from PIL import Image, ExifTags
+from File_Functions import file_mover, get_usb_drive
+
+global OUTPUT_PATH, INPUT_PATH
+OUTPUT_PATH = None
+INPUT_PATH = None
 
 def get_metadata(file_path):
-    print() #print is a placeholder for where get_metadata implementation goes
-
-def move_files_to_date_folder(source_folder, destination_folder):
-    print() #print is a placeholder for where move files to date implementation goes
+    path = file_path
+    return path
 
 def clear_frame(frame):
     for widget in frame.winfo_children():
@@ -42,6 +44,7 @@ def update_stats(frame, path):
         tk.Label(frame, text="No directory selected", font="Helvetica 14 italic").pack()
 
 def welcome_screen(frame):
+    global INPUT_PATH
     clear_frame(frame)
     welcome_font = tkfont.Font(family="Helvetica", size=24, weight="bold")
 
@@ -56,7 +59,7 @@ def welcome_screen(frame):
     stats_frame = tk.Frame(frame)
     stats_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-    label_welcome = tk.Label(main_content_frame, text="Welcome to PySort!\n", font=welcome_font)
+    label_welcome = tk.Label(main_content_frame, text="Welcome to LensFlow!\n", font=welcome_font)
     label_welcome2 = tk.Label(main_content_frame, text="Select your SD/USB or Detect Automatically.")
     label_welcome.pack()
     label_welcome2.pack()
@@ -70,54 +73,71 @@ def welcome_screen(frame):
     entry_sd_card_path = tk.Entry(directory_frame, width=30, bg='white', fg='black')
     entry_sd_card_path.pack(side=tk.LEFT, padx=5)
 
-    button_browse = tk.Button(directory_frame, text="Browse", command=lambda: [browse_folder(entry_sd_card_path), update_stats(stats_frame, entry_sd_card_path.get())])
+    button_browse = tk.Button(directory_frame, text="Browse", command=lambda: [browse_folder(entry_sd_card_path, 'input'), update_stats(stats_frame, entry_sd_card_path.get())])    
     button_browse.pack(side=tk.LEFT)
 
     bottom_frame = tk.Frame(main_content_frame)
     bottom_frame.pack(pady=(5, 0))
 
     checkbox_auto_detect_var = tk.BooleanVar()
-    checkbox_auto_detect = tk.Checkbutton(bottom_frame, text="Detect Automatically", variable=checkbox_auto_detect_var)
+    def auto_detect_usb():
+        if checkbox_auto_detect_var.get():  
+            detected_usb_path = get_usb_drive.get_sd()   
+            # E:\ this is right on windows, but doesnt work for us
+            # E:/ this is right on UNIX/MAC, but it DOES work for us for some reason (???)
+            detected_usb_path = detected_usb_path.replace('\\', '/')
+            print(detected_usb_path)
+            if detected_usb_path:
+                INPUT_PATH = detected_usb_path
+                entry_sd_card_path.delete(0, tk.END)  
+                entry_sd_card_path.insert(0, detected_usb_path)  
+                update_stats(stats_frame, detected_usb_path)  
+            else:
+                messagebox.showinfo("Info", "No removable USB drive found.")
+        else:
+            INPUT_PATH = None  
+
+    checkbox_auto_detect = tk.Checkbutton(bottom_frame, text="Detect Automatically", variable=checkbox_auto_detect_var, command=auto_detect_usb)
     checkbox_auto_detect.pack(side=tk.LEFT, padx=10)
 
     button_next = tk.Button(bottom_frame, text="Next", command=lambda: output_directory_screen(frame, entry_sd_card_path.get(), checkbox_auto_detect_var.get()))
     button_next.pack(side=tk.LEFT)
-
-    # initially no stats
     update_stats(stats_frame, "")
-
 
 def output_directory_screen(frame, sd_card_path, auto_detect):
     clear_frame(frame)
-    label_output_dir = tk.Label(frame, text="Select the Output Directory.", font = "Helvetica 24 bold")
-    label_output_dir.pack()
 
-    entry_frame = tk.Frame(frame)
-    entry_frame.pack(pady=(5, 0))
+    directory_frame = tk.Frame(frame)
+    directory_frame.pack(fill='x', pady=10)
 
-    entry_output_dir_path = tk.Entry(entry_frame, width=30, bg='white', fg='black')
-    entry_output_dir_path.pack(side=tk.LEFT, padx=(0, 5))
+    label_output_dir = tk.Label(directory_frame, text="Select the Output Directory.", font="Helvetica 16 bold")
+    label_output_dir.pack(side='top', fill='x')
 
-    button_browse_output_dir = tk.Button(entry_frame, text="Browse", command=lambda: browse_folder(entry_output_dir_path))
-    button_browse_output_dir.pack(side=tk.LEFT)
+    entry_output_dir_path = tk.Entry(directory_frame, width=50, bg='white', fg='black')
+    entry_output_dir_path.pack(side='left', fill='x', expand=True, padx=5)
 
-    checkbox_frame = tk.Frame(frame)
-    checkbox_frame.pack(pady=5)
+    button_browse_output_dir = tk.Button(directory_frame, text="Browse", command=lambda: [browse_folder(entry_output_dir_path, 'output')])
+    button_browse_output_dir.pack(side='left', padx=5)
+
+    options_frame = tk.Frame(frame)
+    options_frame.pack(fill='x', pady=10)
 
     checkbox_create_subfolders_var = tk.BooleanVar()
-    checkbox_create_subfolders = tk.Checkbutton(checkbox_frame, text="Create subfolders for different file types", variable=checkbox_create_subfolders_var)
-    checkbox_create_subfolders.pack(side=tk.LEFT)
+    checkbox_create_subfolders = tk.Checkbutton(options_frame, text="Create subfolders for different file types", variable=checkbox_create_subfolders_var)
+    checkbox_create_subfolders.pack(side='left',padx=5)
 
     checkbox_clear_usb_var = tk.BooleanVar()
-    checkbox_clear_usb = tk.Checkbutton(checkbox_frame, text="Clear SD Card?", variable=checkbox_clear_usb_var, command=lambda: on_clear_checkbox_selected(frame, checkbox_clear_usb_var))
-    checkbox_clear_usb.pack(side=tk.LEFT)
+    checkbox_clear_usb = tk.Checkbutton(options_frame, text="Clear SD Card?", variable=checkbox_clear_usb_var, command=lambda: on_clear_checkbox_selected(frame, checkbox_clear_usb_var))
+    checkbox_clear_usb.pack(side='left', padx=5)
 
-    button_sort = tk.Button(frame, text="Sort My Photos", command=lambda: sorting_screen(frame, sd_card_path, entry_output_dir_path.get(), checkbox_create_subfolders_var.get(), checkbox_clear_usb_var.get()))
-    button_sort.pack(pady=5)
+    button_sort = tk.Button(options_frame, text="Sort My Photos", command=lambda: sorting_screen(frame, checkbox_create_subfolders_var.get(), checkbox_clear_usb_var.get()))
+    button_sort.pack(side='left', padx=5)
 
 
-def sorting_screen(frame, sd_card_path, output_path, create_subfolders, clear_usb):
+def sorting_screen(frame, sd_card_path, output_path):
+    global OUTPUT_PATH
     clear_frame(frame)
+
     loading_font = tkfont.Font(family="Helvetica", size=24, weight="bold")
 
     label_sorting = tk.Label(frame, text="Sorting your images...", font = loading_font)
@@ -126,8 +146,8 @@ def sorting_screen(frame, sd_card_path, output_path, create_subfolders, clear_us
     progress = Progressbar(frame, orient=tk.HORIZONTAL, length=200, mode='indeterminate')
     progress.pack(pady=10)
     progress.start()
-
     # for now it fakes the file sorting with a delay, replace this with actual sorting function call
+    file_mover.move_files(INPUT_PATH, OUTPUT_PATH)
     frame.after(2000, lambda: sorting_complete_screen(frame))
 
 def sorting_complete_screen(frame):
@@ -149,17 +169,21 @@ def sorting_complete_screen(frame):
     button_cancel = tk.Button(button_frame, text="No", command=root.destroy)
     button_cancel.pack(side=tk.LEFT, padx=5)
 
-def browse_folder(entry_widget):
+def browse_folder(entry_widget, path_type):
+    global INPUT_PATH, OUTPUT_PATH
     folder_selected = filedialog.askdirectory()
     if folder_selected:
         entry_widget.delete(0, tk.END)
         entry_widget.insert(0, folder_selected)
+        if path_type == 'input':
+            INPUT_PATH = folder_selected
+        elif path_type == 'output':
+            OUTPUT_PATH = folder_selected
 
 # running the actual GUI
 root = tk.Tk()
-root.title("PySort")
+root.title("LensFlow")
 root.geometry("650x275") # s ize of the window
-root.iconbitmap('/Gui/icon.jpg')
 
 main_frame = tk.Frame(root)
 main_frame.pack(padx=10, pady=10, expand=True, fill=tk.BOTH)

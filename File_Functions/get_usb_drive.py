@@ -1,9 +1,8 @@
 import psutil
 
-PICTURES_LIBRARY_PATH = "F:/Pictures/Raws"
 REMOVABLE_USB_PATH = None
 
-def get_usb_drive():
+def get_sd():
     global REMOVABLE_USB_PATH
     for partition in psutil.disk_partitions():
         if 'removable' in partition.opts:
