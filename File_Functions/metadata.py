@@ -1,8 +1,22 @@
-import os
 from PIL import Image
-from PIL.ExifTags import TAGS
 
-def get_metadata(file_path):
-    image = Image.open(file_path)
-    image_exif = image._getexif()
-    return {TAGS[k]: v for k, v in image_exif.items() if k in TAGS}
+def read_image_metadata(image_path):
+        with Image.open(image_path) as img:
+            # Extract metadata from the image
+            metadata = {
+                "format": img.format,
+                # Extract original datetime if available
+                "datetime_original": img._getexif().get(36867) if img._getexif() else None,
+            
+            }
+
+            return metadata
+
+
+
+'''
+Example usage:
+image_path = "path/to/your/image.jpg"
+metadata = read_image_metadata(image_path) 
+
+'''
